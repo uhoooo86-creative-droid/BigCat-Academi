@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>빅캣 세미나 관리자</title>
+<style>
+:root{--bg:#f4efe6;--card:#fffdf8;--ink:#1c1a17;--muted:#71685b;--line:#e3d9c7;--dark:#16130f;--gold:#d6a531;--ok:#2e9b6a;--err:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:10;background:var(--dark);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--gold);color:var(--dark);font-weight:900;font-size:10px;line-height:1.05;display:grid;place-items:center;text-align:center}
+header h1{font-size:17px;margin:0}
+.pill{font-size:12px;border-radius:99px;padding:3px 10px;background:#3a342b}
+.pill.ok{background:var(--ok)}.pill.warn{background:#a0522d}
+.sp{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer;color:var(--ink)}
+.btn:hover{border-color:#bfae8a}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#2e2100}
+.btn.dark{background:#2a2620;border-color:#4a4237;color:#fff}
+.btn.danger{color:var(--err);border-color:#efc4c0}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:default}
+.wrap{display:grid;grid-template-columns:320px 1fr;gap:14px;padding:14px;max-width:1400px;margin:0 auto}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.list{padding:10px;max-height:calc(100vh - 90px);overflow:auto;position:sticky;top:70px}
+.list input[type=search]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fff}
+.fl{margin:10px 2px 4px;display:flex;align-items:center;gap:6px;font-weight:800}
+.fl .btn{margin-left:auto}
+.it{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:1px solid transparent;background:transparent;border-radius:9px;padding:6px 8px;cursor:pointer}
+.it:hover{background:#f6efe2}.it.on{background:#fff1c7;border-color:#ecd28a}
+.it .n{font-weight:800;color:var(--muted);min-width:22px}
+.it .c{margin-left:auto;font-size:11px;color:var(--muted)}
+.it .dirty{color:var(--gold);font-weight:900}
+.ed{padding:16px 18px}
+.ed h2{margin:0 0 12px;font-size:19px}
+.grid2{display:grid;grid-template-columns:110px 1fr;gap:10px 12px;align-items:center}
+.grid2 label{font-weight:700;color:var(--muted)}
+.ed input[type=text],.ed input[type=number],.ed select,.ed textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff}
+.ed textarea{resize:vertical;min-height:60px}
+.sec{margin-top:18px;border-top:1px dashed var(--line);padding-top:14px}
+.sec h3{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:8px}
+.sec h3 small{color:var(--muted);font-weight:400}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px}
+.th{width:120px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;position:relative}
+.th img{width:120px;height:110px;object-fit:contain;display:block;background:#fff}
+.th .nm{font-size:11px;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+.th .ops{position:absolute;top:4px;right:4px;display:flex;gap:3px}
+.th .ops button{border:0;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 6px;cursor:pointer}
+.th.new{outline:2px solid var(--gold)}
+.rowl{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0e8da}
+.rowl .nm{flex:1;word-break:break-all}
+.rowl audio{height:32px;max-width:260px}
+.tag-new{font-size:11px;background:#fff1c7;border:1px solid #ecd28a;border-radius:99px;padding:1px 7px;color:#7a5a00}
+.lk{display:grid;grid-template-columns:1fr 2fr auto;gap:6px;margin-bottom:6px}
+.drop{display:block;border:2px dashed #d4c39c;border-radius:12px;padding:16px;text-align:center;color:#7a6a3e;cursor:pointer;background:#fffaf0}
+.drop.over{background:#fff1c7}
+.drop input{display:none}
+.muted{color:var(--muted)}
+.foot{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+dialog{border:0;border-radius:16px;padding:0;width:min(560px,94vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog .in{padding:18px;display:grid;gap:10px}
+dialog label{display:grid;gap:4px;font-weight:700}
+dialog input{border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.help{font-size:12.5px;color:var(--muted);line-height:1.6;background:#f8f3e9;border-radius:10px;padding:10px 12px}
+#log{position:fixed;right:14px;bottom:14px;z-index:30;display:grid;gap:6px;max-width:420px}
+#log div{background:var(--dark);color:#fff;border-radius:10px;padding:9px 12px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#log .e{background:var(--err)}#log .o{background:var(--ok)}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+@media (max-width:860px){.wrap{grid-template-columns:1fr}.list{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">BIG<br>CAT</div>
+  <h1>세미나 관리자</h1>
+  <span class="pill" id="mode">불러오는 중…</span>
+  <span class="pill warn" id="pend" hidden></span>
+  <span class="sp"></span>
+  <a class="btn dark sm" href="index.html" target="_blank">사이트 보기 ↗</a>
+  <button class="btn dark sm" id="dl">data.json 내려받기</button>
+  <button class="btn dark sm" id="setBtn">⚙ GitHub 설정</button>
+  <button class="btn gold" id="save">💾 저장 → GitHub 반영</button>
+</header>
+
+<div class="wrap">
+  <aside class="panel list">
+    <input type="search" id="q" placeholder="카드 검색">
+    <div id="cards"></div>
+  </aside>
+  <section class="panel ed" id="ed"><div class="empty">왼쪽에서 카드를 고르거나 ‘＋’로 새 카드를 만드세요.</div></section>
+</div>
+
+<dialog id="setDlg"><form method="dialog" class="in">
+  <h3 style="margin:0">GitHub 연결 설정</h3>
+  <label>저장소 주인 (아이디)<input id="sOwner" placeholder="예: bigcat86" required></label>
+  <label>저장소 이름<input id="sRepo" placeholder="예: bigcat-seminar" required></label>
+  <label>브랜치<input id="sBranch" value="main"></label>
+  <label>토큰 (Fine-grained, Contents 읽기/쓰기)<input id="sToken" type="password" placeholder="github_pat_…" required></label>
+  <div class="help">토큰은 이 브라우저에만 저장돼요. 공용 PC에서는 쓰지 마세요.<br>저장하면 GitHub에 바로 커밋되고, Netlify가 1~2분 뒤 자동으로 사이트를 갱신해요.</div>
+  <div class="foot"><button class="btn gold" value="ok">연결</button><button class="btn" value="cancel" formnovalidate>취소</button><button class="btn danger" type="button" id="sClear">연결 해제</button></div>
+</form></dialog>
+
+<div id="log"></div>
+<script src="data.js"></script>
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+var enc=function(p){return p.split("/").map(encodeURIComponent).join("/")};
+var KEY="bigcat-admin-gh";
+var cfg=(function(){try{return JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){return null}})();
+var data=null, selId=null, pending={}, dirty=false; // pending: path -> {blob, url, kind}
+function toast(msg,cls){var d=document.createElement("div");d.textContent=msg;if(cls)d.className=cls;$("#log").appendChild(d);setTimeout(function(){d.remove()},cls==="e"?9000:4000)}
+function setDirty(v){dirty=v; var n=Object.keys(pending).length; $("#pend").hidden=!v; $("#pend").textContent="저장 안 됨"+(n?" · 새 파일 "+n+"개":"");}
+window.addEventListener("beforeunload",function(e){if(dirty){e.preventDefault();e.returnValue="";}});
+
+/* ---------- GitHub ---------- */
+function gh(path,opt){
+  opt=opt||{}; var h={"Authorization":"Bearer "+cfg.token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};
+  if(opt.raw) h.Accept="application/vnd.github.raw+json";
+  if(opt.body) h["Content-Type"]="application/json";
+  return fetch("https://api.github.com/repos/"+cfg.owner+"/"+cfg.repo+path,{method:opt.method||"GET",headers:h,body:opt.body?JSON.stringify(opt.body):undefined})
+    .then(function(r){ if(!r.ok) return r.text().then(function(t){var m="GitHub 오류 "+r.status; if(r.status===401)m+=" (토큰 확인)"; if(r.status===404)m+=" (저장소·브랜치·권한 확인)"; throw new Error(m+": "+t.slice(0,140));}); return opt.raw?r.text():r.json(); });
+}
+function b64FromBlob(blob){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(String(fr.result).split(",")[1])};fr.onerror=rej;fr.readAsDataURL(blob)})}
+function b64Text(s){return b64FromBlob(new Blob([s],{type:"text/plain;charset=utf-8"}))}
+function commit(files,message){ // files: [{path, blob}]
+  var b=cfg.branch||"main", headSha, baseTree;
+  return gh("/git/ref/heads/"+encodeURIComponent(b)).then(function(r){headSha=r.object.sha; return gh("/git/commits/"+headSha)})
+  .then(function(c){baseTree=c.tree.sha; var out=[], i=0;
+    function next(){ if(i>=files.length) return Promise.resolve(out); var f=files[i++];
+      toast("올리는 중 "+i+"/"+files.length+" · "+f.path.split("/").pop());
+      return b64FromBlob(f.blob).then(function(c64){return gh("/git/blobs",{method:"POST",body:{content:c64,encoding:"base64"}})})
+        .then(function(r){out.push({path:f.path,mode:"100644",type:"blob",sha:r.sha}); return next();}); }
+    return next(); })
+  .then(function(tree){return gh("/git/trees",{method:"POST",body:{base_tree:baseTree,tree:tree}})})
+  .then(function(t){return gh("/git/commits",{method:"POST",body:{message:message,tree:t.sha,parents:[headSha]}})})
+  .then(function(c){return gh("/git/refs/heads/"+encodeURIComponent(b),{method:"PATCH",body:{sha:c.sha}})});
+}
+
+/* ---------- 데이터 ---------- */
+function load(){
+  if(cfg){ $("#mode").textContent="GitHub에서 불러오는 중…";
+    return gh("/contents/data.json?ref="+encodeURIComponent(cfg.branch||"main"),{raw:true}).then(function(t){data=JSON.parse(t); ready("GitHub 연결됨 · "+cfg.owner+"/"+cfg.repo,"ok");})
+      .catch(function(e){toast(e.message+" — 사이트의 data.js로 불러왔어요","e"); data=JSON.parse(JSON.stringify(window.SEMINAR||{floors:[],items:[]})); ready("GitHub 연결 오류","warn");});
+  }
+  data=JSON.parse(JSON.stringify(window.SEMINAR||{floors:[],items:[]})); ready("GitHub 미연결 (내려받기만 가능)","warn");
+}
+function ready(msg,cls){ $("#mode").textContent=msg; $("#mode").className="pill "+(cls||""); renderList(); renderEd(); }
+function floorOf(id){return data.floors.filter(function(f){return f.id===id})[0]||{}}
+function itemOf(id){return data.items.filter(function(i){return i.id===id})[0]}
+function clean(s){return String(s).replace(/[\\/:*?"<>|#%]/g,"").replace(/\s+/g," ").trim()}
+function prefixOf(it){
+  var cnt={}; (it.images.concat(it.audio,it.files)).forEach(function(p){var b=p.split("/").pop(); var k=b.split("_")[0]; cnt[k]=(cnt[k]||0)+1;});
+  var best=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]})[0]; return best||clean(it.title);
+}
+function folderOf(it){
+  if(it.folder) return it.folder;
+  var f=floorOf(it.floor); var nn=String(it.no==null?99:it.no).padStart(2,"0");
+  it.folder=(f.dir||("_"+it.floor))+"/"+nn+"_"+(it.tag?"(추가) ":"")+clean(it.title); return it.folder;
+}
+function allPaths(){var s={}; data.items.forEach(function(i){i.images.concat(i.audio,i.files).forEach(function(p){s[p]=1})}); return s;}
+function uniq(path){var s=allPaths(); if(!s[path]&&!pending[path]) return path; var m=path.match(/^(.*?)(\.[^.]+)$/), k=2; while(s[m[1]+" ("+k+")"+m[2]]||pending[m[1]+" ("+k+")"+m[2]]) k++; return m[1]+" ("+k+")"+m[2];}
+
+/* ---------- 목록 ---------- */
+function renderList(){
+  var q=$("#q").value.trim().toLowerCase(), h="";
+  data.floors.forEach(function(f){
+    var its=data.items.filter(function(i){return i.floor===f.id && (!q || (i.title+" "+i.desc).toLowerCase().indexOf(q)>-1)});
+    h+='<div class="fl">'+esc(f.emoji+" "+f.label+" "+f.name)+'<button class="btn sm" data-add="'+f.id+'">＋</button></div>';
+    its.sort(function(a,b){return (a.no||0)-(b.no||0)}).forEach(function(i){
+      var n=i.images.length+i.audio.length+i.files.length;
+      h+='<button class="it'+(i.id===selId?' on':'')+'" data-id="'+esc(i.id)+'"><span class="n">'+(i.no!=null?String(i.no).padStart(2,"0"):"·")+'</span><span>'+esc(i.title)+(i._dirty?' <span class="dirty">●</span>':'')+'</span><span class="c">'+n+'</span></button>';
+    });
+  });
+  $("#cards").innerHTML=h;
+}
+
+/* ---------- 편집 ---------- */
+function src(p){return pending[p]?pending[p].url:enc(p)}
+function renderEd(){
+  var it=itemOf(selId); if(!it){$("#ed").innerHTML='<div class="empty">왼쪽에서 카드를 고르거나 ‘＋’로 새 카드를 만드세요.</div>';return;}
+  var fo=data.floors.map(function(f){return '<option value="'+f.id+'"'+(f.id===it.floor?' selected':'')+'>'+esc(f.label+" "+f.name)+'</option>'}).join("");
+  var imgs=it.images.map(function(p,k){return '<div class="th'+(pending[p]?' new':'')+'"><div class="ops"><button data-mv="images:'+k+':-1">◀</button><button data-mv="images:'+k+':1">▶</button><button data-rm="images:'+k+'">✕</button></div><img loading="lazy" src="'+src(p)+'"><div class="nm" title="'+esc(p)+'">'+esc(p.split("/").pop())+'</div></div>'}).join("");
+  var rows=function(kind){return it[kind].map(function(p,k){return '<div class="rowl">'+(pending[p]?'<span class="tag-new">새 파일</span>':'')+'<span class="nm">'+esc(p.split("/").pop())+'</span>'+(kind==="audio"?'<audio controls preload="none" src="'+src(p)+'"></audio>':'')+'<button class="btn sm" data-mv="'+kind+':'+k+':-1">▲</button><button class="btn sm" data-mv="'+kind+':'+k+':1">▼</button><button class="btn sm danger" data-rm="'+kind+':'+k+'">빼기</button></div>'}).join("")||'<div class="muted">없음</div>'};
+  var lks=(it.links||[]).map(function(l,k){return '<div class="lk"><input type="text" data-lk="'+k+':label" value="'+esc(l.label)+'" placeholder="버튼 이름"><input type="text" data-lk="'+k+':url" value="'+esc(l.url)+'" placeholder="https://"><button class="btn sm danger" data-lkrm="'+k+'">✕</button></div>'}).join("");
+  $("#ed").innerHTML=
+   '<h2>'+esc(it.title||"새 카드")+'</h2>'+
+   '<div class="grid2">'+
+    '<label>층</label><select data-f="floor">'+fo+'</select>'+
+    '<label>번호</label><input type="number" data-f="no" value="'+(it.no==null?"":it.no)+'" min="0" style="max-width:120px">'+
+    '<label>교구 이름</label><input type="text" data-f="title" value="'+esc(it.title)+'">'+
+    '<label>활동 설명</label><input type="text" data-f="desc" value="'+esc(it.desc)+'">'+
+    '<label>추가 후보</label><label style="color:inherit;font-weight:400"><input type="checkbox" data-f="tag"'+(it.tag?' checked':'')+'> ‘추가 후보’ 표시</label>'+
+    '<label>비고</label><textarea data-f="note" placeholder="https:// 주소는 앱에서 버튼이 돼요">'+esc(it.note)+'</textarea>'+
+    '<label>저장 폴더</label><span class="muted">'+esc(folderOf(it))+'</span>'+
+   '</div>'+
+   '<div class="sec"><h3>파일 추가 <small>이미지는 자동으로 가볍게(JPG 2000px) 줄여서 올려요 · 음원·PDF는 원본 그대로</small></h3>'+
+    '<label class="drop" id="drop">여기로 파일을 끌어다 놓거나 눌러서 고르세요<input type="file" id="fin" multiple accept="image/*,audio/*,.pdf,.ppt,.pptx,.hwp,.docx"></label></div>'+
+   '<div class="sec"><h3>🖼 이미지 <small>'+it.images.length+'장</small></h3><div class="thumbs">'+(imgs||'<span class="muted">없음</span>')+'</div></div>'+
+   '<div class="sec"><h3>🎵 음원 <small>'+it.audio.length+'개</small></h3>'+rows("audio")+'</div>'+
+   '<div class="sec"><h3>📄 파일 <small>'+it.files.length+'개</small></h3>'+rows("files")+'</div>'+
+   '<div class="sec"><h3>🔗 앱 링크</h3>'+lks+'<button class="btn sm" id="lkAdd">＋ 링크 추가</button></div>'+
+   '<div class="foot"><button class="btn danger" id="del">카드 삭제</button><span class="sp"></span><span class="muted">‘빼기’·삭제는 목록에서만 빠지고 파일은 저장소에 남아요.</span></div>';
+  var d=$("#drop"); ["dragenter","dragover"].forEach(function(e){d.addEventListener(e,function(ev){ev.preventDefault();d.classList.add("over")})});
+  ["dragleave","drop"].forEach(function(e){d.addEventListener(e,function(ev){ev.preventDefault();d.classList.remove("over")})});
+  d.addEventListener("drop",function(ev){addFiles(Array.prototype.slice.call(ev.dataTransfer.files))});
+  $("#fin").addEventListener("change",function(){var fs=Array.prototype.slice.call(this.files); this.value=""; addFiles(fs);});
+}
+function touch(it){it._dirty=true; setDirty(true); renderList();}
+
+function shrink(file,max,q){
+  return createImageBitmap(file).then(function(bm){var s=Math.min(1,max/Math.max(bm.width,bm.height)); var c=document.createElement("canvas"); c.width=Math.round(bm.width*s); c.height=Math.round(bm.height*s);
+    var x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(bm,0,0,c.width,c.height);
+    return new Promise(function(r){c.toBlob(r,"image/jpeg",q)}); });
+}
+function addFiles(list){
+  var it=itemOf(selId); if(!it) return; var pre=prefixOf(it), dir=folderOf(it);
+  var jobs=Array.prototype.map.call(list,function(file){
+    var base=clean(file.name.replace(/\.[^.]+$/,"")), ext=(file.name.match(/\.[^.]+$/)||[""])[0].toLowerCase();
+    var name=base.indexOf(pre)===0?base:pre+"_"+base;
+    if(/^image\//.test(file.type)){
+      var path=uniq(dir+"/"+name+".jpg");
+      return Promise.all([shrink(file,2000,.85),shrink(file,700,.78)]).then(function(r){
+        pending[path]={blob:r[0],url:URL.createObjectURL(r[0])}; pending["web_thumbs/"+path+".jpg"]={blob:r[1],thumb:true}; it.images.push(path); });
+    }
+    var isA=/^audio\//.test(file.type)||/\.(mp3|m4a|wav|aac|ogg)$/.test(ext);
+    if(file.size>95*1024*1024){toast(file.name+": 95MB가 넘어서 올릴 수 없어요","e"); return Promise.resolve();}
+    var p2=uniq(dir+"/"+(isA&&name.indexOf("_음원_")<0?pre+"_음원_"+name.slice(pre.length+1||0):name)+ext);
+    pending[p2]={blob:file,url:URL.createObjectURL(file)}; (isA?it.audio:it.files).push(p2); return Promise.resolve();
+  });
+  Promise.all(jobs).then(function(){touch(it); renderEd(); toast(list.length+"개 추가됨 · ‘저장’을 눌러야 반영돼요");}).catch(function(e){toast("이미지 처리 실패: "+e.message,"e")});
+}
+
+document.addEventListener("input",function(e){
+  var it=itemOf(selId); if(!it) return; var t=e.target;
+  if(t.dataset.f){ var k=t.dataset.f; it[k]= k==="no" ? (t.value===""?null:+t.value) : k==="tag" ? (t.checked?"추가 후보":"") : t.value;
+    if(k==="floor"||k==="no"||k==="title"||k==="tag"){ if(!hasFiles(it)) it.folder=null; }
+    touch(it); if(k==="title") $("#ed h2").textContent=it.title; }
+  if(t.dataset.lk){ var a=t.dataset.lk.split(":"); it.links[+a[0]][a[1]]=t.value.trim(); touch(it); }
+});
+document.addEventListener("change",function(e){ if(e.target.dataset.f==="floor"||e.target.dataset.f==="tag") renderEd(); });
+document.addEventListener("click",function(e){
+  var t=e.target.closest("button,[data-id]"); if(!t) return; var it=itemOf(selId);
+  if(t.dataset.id){ selId=t.dataset.id; renderList(); renderEd(); return; }
+  if(t.dataset.add){ var f=t.dataset.add, mx=data.items.filter(function(i){return i.floor===f}).reduce(function(m,i){return Math.max(m,i.no||0)},0);
+    var ni={id:f+"-new-"+Date.now().toString(36),floor:f,no:mx+1,title:"새 교구",tag:"",desc:"",images:[],audio:[],files:[],links:[],note:""};
+    data.items.push(ni); selId=ni.id; touch(ni); renderEd(); return; }
+  if(!it) return;
+  if(t.dataset.rm){ var a=t.dataset.rm.split(":"); var p=it[a[0]].splice(+a[1],1)[0]; if(pending[p]){delete pending[p]; delete pending["web_thumbs/"+p+".jpg"];} touch(it); renderEd(); return; }
+  if(t.dataset.mv){ var b=t.dataset.mv.split(":"), arr=it[b[0]], i=+b[1], j=i+(+b[2]); if(j<0||j>=arr.length) return; var x=arr[i]; arr[i]=arr[j]; arr[j]=x; touch(it); renderEd(); return; }
+  if(t.id==="lkAdd"){ (it.links=it.links||[]).push({label:"",url:""}); touch(it); renderEd(); return; }
+  if(t.dataset.lkrm){ it.links.splice(+t.dataset.lkrm,1); touch(it); renderEd(); return; }
+  if(t.id==="del"){ if(!confirm("‘"+it.title+"’ 카드를 목록에서 삭제할까요? (파일은 저장소에 남아요)")) return;
+    it[ "images" ].concat(it.audio,it.files).forEach(function(p){delete pending[p]; delete pending["web_thumbs/"+p+".jpg"];});
+    data.items=data.items.filter(function(x){return x!==it}); selId=null; setDirty(true); renderList(); renderEd(); }
+});
+function hasFiles(i){return (i.images||[]).length+(i.audio||[]).length+(i.files||[]).length>0}
+$("#q").addEventListener("input",renderList);
+
+function output(){
+  var d=JSON.parse(JSON.stringify(data,function(k,v){return k==="_dirty"?undefined:v}));
+  d.items.forEach(function(i){ (i.links||[]).forEach(function(l){ if(l.url&&!/^https?:\/\//i.test(l.url)) l.url="https://"+l.url; }); i.links=(i.links||[]).filter(function(l){return l.url||l.label}); });
+  var json=JSON.stringify(d,null,1);
+  return {json:json, js:"/* 빅캣 세미나 데이터 — 관리자 페이지에서 저장 "+new Date().toLocaleString("ko-KR")+" */\nwindow.SEMINAR = "+json+";\n"};
+}
+function download(name,text){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},3000)}
+$("#dl").onclick=function(){var o=output(); download("data.json",o.json); download("data.js",o.js);};
+$("#save").onclick=function(){
+  if(!cfg){ toast("먼저 ⚙ GitHub 설정을 해 주세요. 지금은 ‘data.json 내려받기’만 돼요.","e"); $("#setDlg").showModal(); return; }
+  if(!dirty){ toast("바뀐 내용이 없어요"); return; }
+  var o=output(), files=[{path:"data.json",blob:new Blob([o.json],{type:"application/json"})},{path:"data.js",blob:new Blob([o.js],{type:"text/javascript"})}];
+  Object.keys(pending).forEach(function(p){files.unshift({path:p,blob:pending[p].blob})});
+  var btn=$("#save"); btn.disabled=true; btn.textContent="저장 중…";
+  commit(files,"관리자 페이지에서 수정 ("+new Date().toLocaleString("ko-KR")+")").then(function(){
+    pending={}; data.items.forEach(function(i){delete i._dirty}); setDirty(false); renderList(); renderEd();
+    toast("GitHub에 저장했어요. 1~2분 뒤 사이트에 자동 반영돼요.","o");
+  }).catch(function(e){toast(e.message,"e")}).then(function(){btn.disabled=false; btn.textContent="💾 저장 → GitHub 반영";});
+};
+/* 설정 */
+$("#setBtn").onclick=function(){ if(cfg){$("#sOwner").value=cfg.owner;$("#sRepo").value=cfg.repo;$("#sBranch").value=cfg.branch||"main";$("#sToken").value=cfg.token;} $("#setDlg").showModal(); };
+$("#setDlg").addEventListener("close",function(){ if(this.returnValue!=="ok") return;
+  cfg={owner:$("#sOwner").value.trim(),repo:$("#sRepo").value.trim(),branch:$("#sBranch").value.trim()||"main",token:$("#sToken").value.trim()};
+  try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}
+  if(dirty && !confirm("저장 안 한 변경이 있어요. GitHub 데이터로 다시 불러올까요? (취소하면 지금 화면 유지)")) { ready("GitHub 연결됨 · "+cfg.owner+"/"+cfg.repo,"ok"); return; }
+  pending={}; setDirty(false); load(); });
+$("#sClear").onclick=function(){ try{localStorage.removeItem(KEY)}catch(e){} cfg=null; $("#setDlg").close(); load(); toast("연결을 해제했어요"); };
+load();
+})();
+</script>
+</body>
+</html>

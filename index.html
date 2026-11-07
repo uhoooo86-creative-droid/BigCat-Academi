@@ -1,3 +1,104 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BIGCAT ACADEMY · 오프라인 자료실</title><link rel="stylesheet" href="style.css"></head><body>
-<div class="app"><aside><a class="brand" href="index.html"><span class="cat">♜</span><span>BIGCAT<small>ACADEMY TOWER</small></span></a><div class="navcaption">FLOOR DIRECTORY</div><nav id="nav"></nav><div class="sidebottom"><b>11.07 · GZ 빅캣아카데미</b><p>교구부터 음악까지<br>수업의 모든 아이디어를 한곳에.</p><span>● 서버 없는 폴더형 자료실</span></div></aside><main><header><span>BIGCAT ACADEMY / OFFLINE</span><button class="ghost" id="mode">✎ 자료 편집</button></header><section class="intro"><div class="eyebrow">TEACH · PLAY · INSPIRE</div><h1>아이디어가 수업이 되는 곳<span>.</span></h1><p>폴더 하나로 함께 나누는 빅캣 수업 자료실</p><div class="stats" id="stats"></div></section><div id="editor" class="hidden"><div class="help"><b>① 교구 선택 → 자료·링크 추가 → ② 배포 ZIP 저장 → ③ 압축을 풀고 폴더째 전달</b><br>편집 내용은 현재 창에만 임시 보관됩니다. 창을 닫기 전에 반드시 ZIP으로 저장하세요.<br>기존 파일도 함께 내보내려면 아래에서 이 앱이 들어 있는 <b>BIGCAT_OFFLINE 폴더</b>를 한 번 선택하세요.</div><div class="toolbar"><label>📁 현재 자료 폴더 선택<input id="folder" type="file" webkitdirectory multiple hidden></label><button id="export" class="primary">배포 ZIP 저장 ↓</button><span id="folderstatus" class="mini"></span></div></div><div id="status" class="notice hidden" role="status"></div><section class="floorhero" id="hero"></section><section class="tools"><div class="tabs" id="tabs"></div><input id="search" aria-label="교구 검색" placeholder="⌕ 교구 이름으로 검색"></section><div class="sectionline"><b id="count"></b><small>교구를 선택하면 자료와 관련 링크가 열립니다.</small></div><div class="grid" id="grid"></div><footer>BIGCAT ACADEMY TOWER<span>이미지·음악은 오프라인 / 외부 링크는 인터넷 연결 필요</span></footer></main></div><div id="dialog" class="overlay hidden"></div>
-<script src="data.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>빅캣아카데미 세미나</title>
+<meta name="theme-color" content="#16130f">
+<link rel="stylesheet" href="app/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <div class="logo">BIG<br>CAT</div>
+      <div>
+        <h1 id="appTitle">빅캣아카데미 세미나</h1>
+        <p id="appSub" class="sub"></p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="editToggle" class="btn ghost" type="button">✏️ 편집</button>
+    </div>
+  </div>
+  <div class="search-row">
+    <input id="search" type="search" placeholder="교구·활동 검색" autocomplete="off">
+  </div>
+  <nav id="tabs" class="tabs" aria-label="층 선택"></nav>
+</header>
+
+<div id="editBar" class="editbar" hidden>
+  <div class="editbar-inner">
+    <span id="editState">편집 모드 · 변경사항은 이 브라우저에 임시 저장돼요</span>
+    <div class="editbar-btns">
+      <button id="exportZip" class="btn gold" type="button">📦 변경사항 zip 받기</button>
+      <button id="exportData" class="btn" type="button">data.js 받기</button>
+      <button id="resetData" class="btn danger" type="button">되돌리기</button>
+    </div>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<footer class="foot">BIGCAT ACADEMY · 세미나 교구 안내</footer>
+
+<!-- 이미지 크게 보기 -->
+<div id="lightbox" class="lightbox" hidden>
+  <button class="lb-close" type="button" aria-label="닫기">✕</button>
+  <button class="lb-nav lb-prev" type="button" aria-label="이전">‹</button>
+  <img id="lbImg" alt="">
+  <button class="lb-nav lb-next" type="button" aria-label="다음">›</button>
+  <div class="lb-bar">
+    <span id="lbCount"></span>
+    <a id="lbDown" class="btn gold" download>⬇ 원본 다운로드</a>
+  </div>
+</div>
+
+<!-- 편집 창 -->
+<dialog id="editor" class="editor">
+  <form method="dialog" id="editForm">
+    <h2 id="edTitle">항목 수정</h2>
+    <label>층
+      <select name="floor" id="edFloor"></select>
+    </label>
+    <label>교구 이름<input name="title" required></label>
+    <label>활동 설명<textarea name="desc" rows="2"></textarea></label>
+
+    <fieldset>
+      <legend>이미지 <small>(한 줄에 하나씩, assets/images/…)</small></legend>
+      <textarea name="images" rows="3"></textarea>
+      <label class="pick">＋ 이미지 파일 선택<input type="file" accept="image/*" multiple data-kind="images"></label>
+    </fieldset>
+    <fieldset>
+      <legend>음악·오디오 <small>(assets/audio/…)</small></legend>
+      <textarea name="audio" rows="2"></textarea>
+      <label class="pick">＋ 음악 파일 선택<input type="file" accept="audio/*" multiple data-kind="audio"></label>
+    </fieldset>
+    <fieldset>
+      <legend>다운로드 파일 <small>(PDF·PPT 등, assets/files/…)</small></legend>
+      <textarea name="files" rows="2"></textarea>
+      <label class="pick">＋ 파일 선택<input type="file" multiple data-kind="files"></label>
+    </fieldset>
+    <fieldset>
+      <legend>링크 버튼</legend>
+      <div id="edLinks"></div>
+      <button type="button" class="btn small" id="addLink">＋ 링크 추가</button>
+    </fieldset>
+    <label>비고 <small>(https:// 주소를 넣으면 자동으로 버튼이 돼요 · [버튼이름](주소) 형식도 가능)</small>
+      <textarea name="note" rows="3"></textarea>
+    </label>
+    <p class="hint">새로 선택한 파일은 지금 바로 미리보기 되고, ‘변경사항 zip 받기’에 함께 담겨요.</p>
+    <div class="ed-actions">
+      <button type="button" class="btn danger" id="edDelete">삭제</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="edCancel">취소</button>
+      <button type="submit" class="btn gold">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="data.js"></script>
+<script src="app/jszip.min.js"></script>
+<script src="app/app.js"></script>
+</body>
+</html>
